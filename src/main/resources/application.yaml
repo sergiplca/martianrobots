@@ -15,3 +15,13 @@ spring:
     console:
       enabled: true
       path: /h2-ui
+
+server:
+  port: 8080
+
+logging:
+  level:
+    root: ERROR
+    org.springframework.web: ERROR
+    com.sergi.martianrobots: INFO
+    org.hibernate: ERROR

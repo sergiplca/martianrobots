@@ -2,7 +2,6 @@ package com.sergi.martianrobots.model;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
-import java.util.List;
 
 @Entity
 @Table(name = "executions")
@@ -18,9 +17,8 @@ public class Execution {
     @Column(name = "upper_bound_y_coord")
     private int upperBoundYCoord;
 
-    @OneToMany(cascade = CascadeType.ALL)
-    @Column(name = "robots")
-    private List<Robot> robots;
+    @Column(name = "robots_number")
+    private int robotsNumber;
 
     @Column(name = "lost_robots")
     private int lostRobots;
@@ -31,10 +29,10 @@ public class Execution {
     @Column(name = "result")
     private String finalPositions;
 
-    public Execution(int upperBoundXCoord, int upperBoundYCoord, List<Robot> robots, int lostRobots, Timestamp timestamp, String finalPositions) {
+    public Execution(int upperBoundXCoord, int upperBoundYCoord, int robotsNumber, int lostRobots, Timestamp timestamp, String finalPositions) {
         this.upperBoundXCoord = upperBoundXCoord;
         this.upperBoundYCoord = upperBoundYCoord;
-        this.robots = robots;
+        this.robotsNumber = robotsNumber;
         this.lostRobots = lostRobots;
         this.timestamp = timestamp;
         this.finalPositions = finalPositions;
@@ -56,12 +54,12 @@ public class Execution {
         this.upperBoundYCoord = upperBoundYCoord;
     }
 
-    public List<Robot> getRobots() {
-        return robots;
+    public int getRobots() {
+        return robotsNumber;
     }
 
-    public void setRobots(List<Robot> robots) {
-        this.robots = robots;
+    public void setRobots(int robotsNumber) {
+        this.robotsNumber = robotsNumber;
     }
 
     public int getLostRobots() {
