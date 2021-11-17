@@ -43,4 +43,15 @@ public class Scent {
     public String toString() {
         return "Scent [xCoord=" + xCoord + ", yCoord=" + yCoord + ", orientation=" + orientation + "]";
     }
+
+    @Override
+    public boolean equals(Object object) {
+        if (object instanceof Scent) {
+            var scent = (Scent) object;
+            return this.getxCoord() == scent.getxCoord()
+                    && this.getyCoord() == scent.getyCoord()
+                    && this.getOrientation().equals(scent.getOrientation());
+        }
+        return false;
+    }
 }

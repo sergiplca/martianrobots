@@ -23,6 +23,9 @@ public final class Movement {
     }
 
     public static String rotate(String direction, String orientation) {
+
+        LOGGER.debug("Current orientation: " + orientation);
+
         switch (direction) {
             case "L": return rotateLeft(orientation);
             case "R": return rotateRight(orientation);
