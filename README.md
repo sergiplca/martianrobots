@@ -24,6 +24,8 @@ The scent is left at the last grid position the robot occupied before disappeari
 the edge. An instruction to move "off" the world from a grid point from which a robot
 has been previously lost is simply ignored by the current robot.
 
+In addition, robots of future runs will also be able to get the scents from previous runs.
+
 ### Input
 Input will be a json string containing:
 * The upper-right coordinates of the rectangular world, the lower-left coordinates are assumed to be 0, 0.
@@ -58,27 +60,25 @@ Output will be a json string containing a list of the resulting position of all 
       "4 2 N"
   ]
 
-###Use  
-#####Dependencies
+### Use  
+##### Dependencies
 * Java 14
 * Maven (will be used for retrieving the rest of dependencies)
 
-#####Building and deploying
-*
-  ```sh
-  mvn clean install
-  mvn spring-boot:run
+##### Building and deploying
+* `mvn clean install`
+* `mvn spring-boot:run`
   
 ### Endpoints
-#####POST
+##### POST
 * `/v1/run-robots` Use for running robots on Mars surface. Body requires the input json
-with the upper-right coordinates and the robots.
+with the upper-right coordinates and the robots as shown above.
 
 
-#####GET
+##### GET
 * `/v1/get-scents` Use for retrieving the scents left by the robots.
 
-#####H2 in-memory database UI
+##### H2 in-memory database UI
 The H2 in memory database UI is accessible from the browser at http://localhost:8080/h2-ui where 
 an execution history and scents can be checked. It gets deleted and recreated with every startup.
 * Username: `sa`
