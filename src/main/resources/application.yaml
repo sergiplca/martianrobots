@@ -7,7 +7,7 @@ spring:
     username: sa
     password:
   jpa:
-    show-sql: true
+    show-sql: false
     properties:
       hibernate:
         dialect: org.hibernate.dialect.H2Dialect
@@ -22,6 +22,6 @@ server:
 logging:
   level:
     root: ERROR
-    org.springframework.web: WARN
+    org.springframework.web: INFO
     com.sergi.martianrobots: INFO
     org.hibernate: WARN

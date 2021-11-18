@@ -1,5 +1,6 @@
 package com.sergi.martianrobots.service;
 
+import com.sergi.martianrobots.exception.BadInputException;
 import com.sergi.martianrobots.model.Robot;
 import com.sergi.martianrobots.model.RobotState;
 import com.sergi.martianrobots.model.Scent;
@@ -11,8 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.awt.Point;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.StringTokenizer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -24,11 +23,10 @@ public class RobotRunnerService {
 
     private static final String COORDS_DELIMITER = " ";
     private static final String INSTRUCTIONS_DELIMITER = "";
+    private static final String MAX_INSTRUCTIONS_EXCEEDED = "Instructions for every robot should not exceed 100";
 
     @Autowired
     ScentRepository scentRepository;
-
-    private List<Scent> scents = new ArrayList<>();
 
     public RobotState runRobot(Robot robot, Point upperBounds) {
 
@@ -36,6 +34,10 @@ public class RobotRunnerService {
         LOGGER.info("Starting position: " + robot.getRobotPosition());
 
         var robotState = fillInitialRobotState(robot);
+
+        if (robotState.getInstructions().size() > 100) {
+            throw new BadInputException(MAX_INSTRUCTIONS_EXCEEDED);
+        }
 
         for (String instruction : robotState.getInstructions()) {
             if ("F".equals(instruction)) {

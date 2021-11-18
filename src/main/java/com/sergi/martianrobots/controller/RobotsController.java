@@ -29,7 +29,8 @@ public class RobotsController {
     @GetMapping(path = "/robots",
             consumes = "application/json",
             produces = "application/json")
-    public ResponseEntity<String> runRobots(@RequestBody String robotsInitialState) throws JsonProcessingException {
+    public ResponseEntity<String> runRobots(@RequestBody String robotsInitialState)
+            throws JsonProcessingException {
 
         LOGGER.info("[START] Received a request to move some robots...");
 

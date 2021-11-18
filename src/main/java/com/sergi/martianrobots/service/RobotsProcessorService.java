@@ -1,5 +1,6 @@
 package com.sergi.martianrobots.service;
 
+import com.sergi.martianrobots.exception.BadInputException;
 import com.sergi.martianrobots.model.Execution;
 import com.sergi.martianrobots.model.Robot;
 import com.sergi.martianrobots.model.RobotsInput;
@@ -29,6 +30,7 @@ public class RobotsProcessorService {
     RobotRunnerService robotRunnerService;
 
     private static final String DELIMITER = " ";
+    private static final String BAD_COORDS = "Coordinates should not be 0 or less or exceed 50";
 
     private Point upperBounds;
     private List<String> finalPositions;
@@ -41,6 +43,10 @@ public class RobotsProcessorService {
 
         calculateUpperBounds(input.getTopCoordinates());
         LOGGER.info("Upper bounds: X=" + upperBounds.x + ", Y=" + upperBounds.y);
+        if (upperBounds.x > 50 || upperBounds.y > 50
+            || upperBounds.x <= 0 || upperBounds.y <= 0) {
+            throw new BadInputException(BAD_COORDS);
+        }
 
         for(Robot robot : input.getRobots()) {
             var robotState = robotRunnerService.runRobot(robot, upperBounds);
