@@ -32,17 +32,23 @@ public class RobotsProcessorService {
 
     private Point upperBounds;
     private List<String> finalPositions;
-    private int lostRobots = 0;
+    private int lostRobots;
 
     public List<String> processRobots(RobotsInput input) {
 
         finalPositions = new ArrayList<>();
+        lostRobots = 0;
 
         calculateUpperBounds(input.getTopCoordinates());
         LOGGER.info("Upper bounds: X=" + upperBounds.x + ", Y=" + upperBounds.y);
 
         for(Robot robot : input.getRobots()) {
-            finalPositions.add(robotRunnerService.runRobot(robot, upperBounds));
+            var robotState = robotRunnerService.runRobot(robot, upperBounds);
+            finalPositions.add(robotState.toString());
+
+            if (robotState.isLost()) {
+                lostRobots++;
+            }
         }
 
         saveExecution(input, finalPositions);

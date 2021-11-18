@@ -1,12 +1,22 @@
 package com.sergi.martianrobots.model;
 
+import javax.persistence.*;
 
+@Entity
+@Table(name = "scents")
 public class Scent {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private long id;
+
+    @Column(name = "x_coord")
     private int xCoord;
 
+    @Column(name = "y_coord")
     private int yCoord;
 
+    @Column(name = "orientation")
     private String orientation;
 
     public Scent(int xCoord, int yCoord, String orientation) {

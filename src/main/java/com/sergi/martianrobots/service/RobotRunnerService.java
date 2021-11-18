@@ -1,10 +1,13 @@
 package com.sergi.martianrobots.service;
 
 import com.sergi.martianrobots.model.Robot;
+import com.sergi.martianrobots.model.RobotState;
 import com.sergi.martianrobots.model.Scent;
+import com.sergi.martianrobots.repository.ScentRepository;
 import com.sergi.martianrobots.util.Movement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.awt.Point;
@@ -22,66 +25,77 @@ public class RobotRunnerService {
     private static final String COORDS_DELIMITER = " ";
     private static final String INSTRUCTIONS_DELIMITER = "";
 
-    private Point currentCoords;
-    private String currentOrientation;
+    @Autowired
+    ScentRepository scentRepository;
 
-    List<Scent> scents = new ArrayList<>();
+    private List<Scent> scents = new ArrayList<>();
 
-    public String runRobot(Robot robot, Point upperBounds) {
+    public RobotState runRobot(Robot robot, Point upperBounds) {
 
         LOGGER.info("Moving robot...");
         LOGGER.info("Starting position: " + robot.getRobotPosition());
 
-        Point newCoords = new Point();
-        loadStartingPosition(robot.getRobotPosition());
-        List<String> instructions = loadInstructions(robot.getInstructions());
+        var robotState = fillInitialRobotState(robot);
 
-        for (String instruction : instructions) {
+        for (String instruction : robotState.getInstructions()) {
             if ("F".equals(instruction)) {
-                if (!checkScent()) {
-                    newCoords = Movement.advance(currentCoords, currentOrientation);
-                    if (checkIfLost(upperBounds, newCoords)) {
-                        robot.setRobotPosition(currentCoords.x + " " + currentCoords.y + " " + currentOrientation + " LOST");
-                        scents.add(new Scent(currentCoords.x, currentCoords.y, currentOrientation));
+                if (!checkScent(robotState.getCurrentCoords().x, robotState.getCurrentCoords().y, robotState.getCurrentOrientation())) {
+                    robotState.setPreviousCoords(robotState.getCurrentCoords());
+                    robotState.setCurrentCoords(Movement.advance(robotState.getCurrentCoords(), robotState.getCurrentOrientation()));
+                    if (checkIfLost(upperBounds, robotState)) {
+                        robotState.setLost(true);
+                        saveScent(robotState);
                         break;
-                    } else {
-                        robot.setRobotPosition(newCoords.x + " " + newCoords.y + " " + currentOrientation);
-                        currentCoords = newCoords;
                     }
                 }
             } else {
-                currentOrientation = Movement.rotate(instruction, currentOrientation);
-                robot.setRobotPosition(currentCoords.x + " " + currentCoords.y + " " + currentOrientation);
+                robotState.setPreviousOrientation(robotState.getCurrentOrientation());
+                robotState.setCurrentOrientation(Movement.rotate(instruction, robotState.getCurrentOrientation()));
             }
-            LOGGER.debug("New position: X=" + newCoords.x + " Y=" + newCoords.y + " O=" + currentOrientation);
         }
 
-        LOGGER.info("Final position: " + robot.getRobotPosition());
-        return robot.getRobotPosition();
+        LOGGER.info("Final position: " + robotState.toString());
+        return robotState;
     }
 
-    private void loadStartingPosition(String robotPosition) {
-        StringTokenizer tokenizer = new StringTokenizer(robotPosition, COORDS_DELIMITER);
+    private RobotState fillInitialRobotState (Robot robot) {
+        var initialState = new RobotState();
 
-        currentCoords = new Point(
+        initialState.setInstructions(Stream.of(robot.getInstructions()
+                .split(INSTRUCTIONS_DELIMITER))
+                .collect(Collectors.toList()));
+
+        var tokenizer = new StringTokenizer(robot.getRobotPosition(), COORDS_DELIMITER);
+        initialState.setCurrentCoords(new Point(
                 Integer.parseInt(tokenizer.nextToken()),
-                Integer.parseInt(tokenizer.nextToken()));
-        currentOrientation = tokenizer.nextToken();
+                Integer.parseInt(tokenizer.nextToken())));
+
+        initialState.setCurrentOrientation(tokenizer.nextToken());
+
+        initialState.setPreviousCoords(initialState.getCurrentCoords());
+        initialState.setPreviousOrientation(initialState.getCurrentOrientation());
+        initialState.setLost(false);
+
+        return initialState;
     }
 
-    private List<String> loadInstructions (String instructions) {
-        return Stream.of(instructions.split(INSTRUCTIONS_DELIMITER))
-                .collect(Collectors.toList());
+    private boolean checkScent(int x, int y, String o) {
+        return scentRepository.existsScent(x, y, o);
     }
 
-    private boolean checkScent() {
-        return scents.contains(new Scent(currentCoords.x, currentCoords.y, currentOrientation));
+    private void saveScent(RobotState state) {
+        int x = state.getPreviousCoords().x;
+        int y = state.getPreviousCoords().y;
+        String o = state.getCurrentOrientation();
+        if (!checkScent(x, y, o)) {
+            scentRepository.save(new Scent(x, y, o));
+        }
     }
 
-    private boolean checkIfLost(Point upperBounds, Point newCoords) {
-        return (newCoords.x < 0
-                || newCoords.y < 0
-                || newCoords.x > upperBounds.x
-                || newCoords.y > upperBounds.y);
+    private boolean checkIfLost(Point upperBounds, RobotState state) {
+        return (state.getCurrentCoords().x < 0
+                || state.getCurrentCoords().y < 0
+                || state.getCurrentCoords().x > upperBounds.x
+                || state.getCurrentCoords().y > upperBounds.y);
     }
 }
