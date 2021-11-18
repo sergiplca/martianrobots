@@ -25,6 +25,10 @@ public class Scent {
         this.orientation = orientation;
     }
 
+    public Scent() {
+
+    }
+
     public int getxCoord() {
         return xCoord;
     }
