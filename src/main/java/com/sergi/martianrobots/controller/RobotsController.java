@@ -3,7 +3,6 @@ package com.sergi.martianrobots.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sergi.martianrobots.model.RobotsInput;
-import com.sergi.martianrobots.model.Scent;
 import com.sergi.martianrobots.repository.ScentRepository;
 import com.sergi.martianrobots.service.RobotsProcessorService;
 import org.slf4j.Logger;
